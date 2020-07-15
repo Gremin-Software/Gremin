@@ -118,7 +118,7 @@ while run:  # main loop
                 gremin.moving_left = False
 
     for tile in tiles:
-        pygame.draw.rect(main_window, (0, 255, 0), tile)  # draws the tiles from tilest list every frame
+        pygame.draw.rect(main_window, (0, 255, 0), tile)  # draws the tiles from tiles list every frame
 
     gremin.draw(main_window)
     gremin.move()
