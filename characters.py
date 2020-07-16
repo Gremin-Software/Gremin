@@ -7,14 +7,17 @@ import pygame
 
 class Character:
     gravity = 1
+    char_rect_dict = {}
 
-    def __init__(self, pos_x, pos_y, width, height, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
+    def __init__(self, pos_x, pos_y, width, height, health, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
+        self.health = health
         self.pos_x = pos_x  # player position
         self.pos_y = pos_y  #
         self.width = width
         self.height = height
         self.moving_right = False
         self.moving_left = False
+        self.last_movement = 'right'  # direction of last horizontal movement
         self.movement_vel = movement_vel
         self.jumping = False
         self.can_jump = False
@@ -23,9 +26,10 @@ class Character:
         self.fall_vel = 0
         self.player_rect = pygame.Rect(self.pos_x, self.pos_y, self.width, self.height)  # used in collision_test()
         self.tiles = tiles  # tiles used in collision_test()
+        Character.char_rect_dict[self] = self.player_rect  # adds to the dict (class instance ref: self.player_rect)
 
-    def collision_test(self, tiles) -> list:
-        """Returns a list of rectangles(tiles) the player is colliding with"""
+    def movement_collision_test(self, tiles) -> list:
+        """Returns a list of rectangles(tiles) the character is colliding with"""
 
         collisions = []
         self.player_rect.x = self.pos_x
@@ -36,7 +40,7 @@ class Character:
         return collisions
 
     def move(self):
-        """Player movement, jumping and collisions. Podjebany pomysl z neta."""
+        """Character movement, jumping and collisions. Podjebany pomysl z neta."""
 
         collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
 
@@ -52,7 +56,7 @@ class Character:
             self.fall_vel = self.terminal_vel
 
         self.pos_x += movement[0]
-        collisions = self.collision_test(self.tiles)
+        collisions = self.movement_collision_test(self.tiles)
         for tile in collisions:
             if movement[0] > 0:
                 self.pos_x = tile.left - self.width
@@ -61,7 +65,7 @@ class Character:
                 self.pos_x = tile.right
                 collision_types['left'] = True
         self.pos_y += movement[1]
-        collisions = self.collision_test(self.tiles)
+        collisions = self.movement_collision_test(self.tiles)
         for tile in collisions:
             if movement[1] > 0:
                 self.pos_y = tile.top - self.height
@@ -81,18 +85,65 @@ class Character:
 
 
 class Player(Character):
-    def __init__(self, pos_x, pos_y, width, height, image, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
-        super().__init__(pos_x, pos_y, width, height, tiles, movement_vel, jump_vel, terminal_vel)
+    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
+        super().__init__(pos_x, pos_y, width, height, health, tiles, movement_vel, jump_vel, terminal_vel)
         self.image = image
+        self.attack_damage = 20
+        self.attack_range_x = 200
+        self.attack_range_y = 20
+        self.attack_rect = pygame.Rect(self.pos_x, self.pos_y, self.attack_range_x, self.attack_range_y)
+        self.is_attacking = False  # mozliwe ze bedzie mozna przeniesc do class Character
 
     def draw(self, window):  # draws the player to the screen, no animations for now, just a harnas
         window.blit(self.image, (self.pos_x, self.pos_y))
+
+    def attack_collision_test(self, char_dict):
+        """Returns a list of character instances the character attack hit box is colliding with"""
+
+        collisions = []
+
+        if self.last_movement == 'right':
+            self.attack_rect.x = self.pos_x
+        else:
+            self.attack_rect.x = self.pos_x - self.attack_range_x + self.width
+        self.attack_rect.y = self.pos_y + (self.width - self.attack_range_y) // 2
+
+        for char in char_dict:
+            rect = char_dict[char]
+            if self.attack_rect.colliderect(rect):
+                collisions.append(char)
+        collisions.remove(self)
+        print(collisions)  # TODO: WYJEBAC
+        return collisions
+
+    def attack(self):
+        """Calls damage() function of damaged characters"""
+
+        if self.is_attacking:
+            collisions = self.attack_collision_test(Character.char_rect_dict)
+            for char in collisions:
+                char.damage(self.attack_damage)
+            self.is_attacking = False
+
+    def damage(self, damage):
+        """Reduces the health by given damage"""
+
+        self.health -= damage
+
+    def draw_attack_hitbox(self, window):  # wyswietla hitboxa ataku
+        """TESTING FUNCTION"""
+
+        pygame.draw.rect(window, (255, 0, 0), self.attack_rect)
 
 
 class Enemy(Character):
-    def __init__(self, pos_x, pos_y, width, height, image, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
-        super().__init__(pos_x, pos_y, width, height, tiles, movement_vel, jump_vel, terminal_vel)
+    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
+        super().__init__(pos_x, pos_y, width, height, health, tiles, movement_vel, jump_vel, terminal_vel)
         self.image = image
 
-    def draw(self, window):  # draws the player to the screen, no animations for now, just a harnas
+    def draw(self, window):  # draws the player to the screen, no animations for now, just a goral
         window.blit(self.image, (self.pos_x, self.pos_y))
+
+    def damage(self, damage):
+        self.health -= damage
+        print(self.health)  # TODO: WYJEBAC

@@ -15,10 +15,10 @@ tiles = [pygame.Rect(0, 400, 400, 60), pygame.Rect(410, 300, 60, 100),
          pygame.Rect(100, 200, 200, 10)]  # only for collision testing, do wyjebania :)
 
 player_image = pygame.image.load('sprites/player.png')  # piwko ;)
-gremin = characters.Player(50, 0, 40, 40, player_image, tiles)
+gremin = characters.Player(pos_x=50, pos_y=0, width=40, height=40, health=100, image=player_image, tiles=tiles)
 
 enemy_image = pygame.image.load('sprites/STROJ-PASTUSZEK-kostium-ludowy-GORAL-baca-122-128.png')
-enemy = characters.Enemy(200, 0, 40, 40, enemy_image, tiles)
+enemy = characters.Enemy(pos_x=200, pos_y=0, width=40, height=40, health=100, image=enemy_image, tiles=tiles)
 
 while run:  # main loop
 
@@ -33,10 +33,14 @@ while run:  # main loop
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 gremin.moving_right = True
+                gremin.last_movement = 'right'
             if event.key == pygame.K_LEFT:
                 gremin.moving_left = True
+                gremin.last_movement = 'left'
             if event.key == pygame.K_UP:
                 gremin.jumping = True
+            if event.key == pygame.K_SPACE:
+                gremin.is_attacking = True
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT:
@@ -48,6 +52,8 @@ while run:  # main loop
         pygame.draw.rect(main_window, (0, 255, 0), tile)  # draws the tiles from tiles list every frame
 
     gremin.move()
+    gremin.attack()
+    gremin.draw_attack_hitbox(main_window)  # TODO: WYJEBAC
     gremin.draw(main_window)
 
     enemy.move()
