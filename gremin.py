@@ -17,6 +17,9 @@ tiles = [pygame.Rect(0, 400, 400, 60), pygame.Rect(410, 300, 60, 100),
 player_image = pygame.image.load('sprites/player.png')  # piwko ;)
 gremin = characters.Player(50, 0, 40, 40, player_image, tiles)
 
+enemy_image = pygame.image.load('sprites/STROJ-PASTUSZEK-kostium-ludowy-GORAL-baca-122-128.png')
+enemy = characters.Enemy(200, 0, 40, 40, enemy_image, tiles)
+
 while run:  # main loop
 
     main_window.fill((0, 0, 0))  # fills the background with black every frame
@@ -46,6 +49,9 @@ while run:  # main loop
 
     gremin.move()
     gremin.draw(main_window)
+
+    enemy.move()
+    enemy.draw(main_window)
 
     pygame.display.update()
     clock.tick(60)  # sets the FPS to 60 :))

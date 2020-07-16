@@ -87,3 +87,12 @@ class Player(Character):
 
     def draw(self, window):  # draws the player to the screen, no animations for now, just a harnas
         window.blit(self.image, (self.pos_x, self.pos_y))
+
+
+class Enemy(Character):
+    def __init__(self, pos_x, pos_y, width, height, image, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
+        super().__init__(pos_x, pos_y, width, height, tiles, movement_vel, jump_vel, terminal_vel)
+        self.image = image
+
+    def draw(self, window):  # draws the player to the screen, no animations for now, just a harnas
+        window.blit(self.image, (self.pos_x, self.pos_y))
