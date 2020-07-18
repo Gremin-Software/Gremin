@@ -25,7 +25,7 @@ To-do list:
 * Basic Gremin prototype
 
 ## Status
-Project is: _in progress_ - 0%
+Project is: _in progress_ - 1%
 
 ## Inspiration
 Based on a [true story](https://www.youtube.com/watch?v=5hpi2bpGHp0)
