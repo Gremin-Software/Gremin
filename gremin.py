@@ -43,7 +43,7 @@ def draw_map(game_map, tile_size, display, display_size, camera_pos, image_1, im
 pygame.init()
 pygame.display.set_caption('Gremin')
 WINDOW_SIZE = (1440, 900)
-DISPLAY_SIZE = (300, 200)
+DISPLAY_SIZE = (500, 300)
 monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
 screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
 display = pygame.Surface(DISPLAY_SIZE)

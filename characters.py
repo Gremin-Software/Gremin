@@ -99,7 +99,7 @@ class Player(Character):
         if self.last_movement == 'right':
             window.blit(self.image, (window.get_width() // 2, window.get_height() // 2))
         else:
-            window.blit(pygame.transform.flip(self.image, True, False), (150, 100))
+            window.blit(pygame.transform.flip(self.image, True, False), (window.get_width() // 2, window.get_height() // 2))
 
     def attack_collision_test(self, char_dict):
         """Returns a list of character instances the character attack hit box is colliding with"""
