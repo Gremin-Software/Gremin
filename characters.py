@@ -98,8 +98,7 @@ class Character:
         answer #2
         """
         if self.health <= 0:
-            self.player_rect = (0, 0, 0, 0)
-            Character.char_rect_dict[self] = self.player_rect
+            Character.char_rect_dict.pop(self)
             pygame.mixer.music.load(self.death_sound)
             pygame.mixer.music.play()
             return True
