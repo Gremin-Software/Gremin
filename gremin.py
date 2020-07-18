@@ -92,6 +92,7 @@ while run:  # main loop
                 gremin.jumping = True
             if event.key == pygame.K_SPACE:
                 gremin.is_attacking = True
+                gremin.draw_attack_hitbox(display)  # TODO: WYJEBAC
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT:
