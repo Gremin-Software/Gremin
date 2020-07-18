@@ -9,7 +9,7 @@ class Character:
     gravity = 1
     char_rect_dict = {}
 
-    def __init__(self, pos_x, pos_y, width, height, health, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
+    def __init__(self, pos_x, pos_y, width, height, health, tiles, death_sound, movement_vel=5, jump_vel=20, terminal_vel=15):
         self.health = health
         self.pos_x = pos_x  # player position
         self.pos_y = pos_y  #
@@ -27,6 +27,7 @@ class Character:
         self.player_rect = pygame.Rect(self.pos_x, self.pos_y, self.width, self.height)  # used in collision_test()
         self.tiles = tiles  # tiles used in collision_test()
         Character.char_rect_dict[self] = self.player_rect  # adds to the dict (class instance ref: self.player_rect)
+        self.death_sound = death_sound
 
     def movement_collision_test(self, tiles) -> list:
         """Returns a list of rectangles(tiles) the character is colliding with"""
@@ -83,10 +84,32 @@ class Character:
             self.can_jump = False
         self.jumping = False
 
+    def check_if_dead(self):
+        """
+        Checks if a Character has died
+
+        - "del Object" - seems to not do the trick (or i just do it incorrectly)
+
+        the method throws the rect away, kind of dunno how to erase it w/o inheriting
+        some stuff from the pygame.sprite.Sprite subclass
+
+        please see reference:
+        https://stackoverflow.com/questions/47034604/how-do-i-delete-displayed-objects-in-python-with-pygame
+        answer #2
+        """
+        if self.health <= 0:
+            self.player_rect = (0, 0, 0, 0)
+            Character.char_rect_dict[self] = self.player_rect
+            pygame.mixer.music.load(self.death_sound)
+            pygame.mixer.music.play()
+            return True
+        else:
+            return False
+
 
 class Player(Character):
-    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, movement_vel=3, jump_vel=15, terminal_vel=5):
-        super().__init__(pos_x, pos_y, width, height, health, tiles, movement_vel, jump_vel, terminal_vel)
+    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=3, jump_vel=15, terminal_vel=5):
+        super().__init__(pos_x, pos_y, width, height, health, tiles, death_sound, movement_vel, jump_vel, terminal_vel)
         self.image = image
         self.attack_damage = 20
         self.attack_range_x = 200
@@ -141,8 +164,8 @@ class Player(Character):
 
 
 class Enemy(Character):
-    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
-        super().__init__(pos_x, pos_y, width, height, health, tiles, movement_vel, jump_vel, terminal_vel)
+    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=5, jump_vel=20, terminal_vel=15):
+        super().__init__(pos_x, pos_y, width, height, health, tiles, death_sound, movement_vel, jump_vel, terminal_vel)
         self.image = image
 
     def draw(self, display, camera_pos):  # draws the player to the screen, no animations for now, just a goral

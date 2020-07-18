@@ -17,15 +17,20 @@ Simple game about Gremin and his misadventures.
 * pygame 1.9.6
 
 ## Features
-List of features ready and TODOs for future development
-* Gremin included!
-* but no beer yet tho
+
+Already included:
+* Gremin
+* Góral skurwol
+* basic game mechanics
+* map from .txt loader
 
 To-do list:
-* Basic Gremin prototype
+* Flaku
+* beer power-ups
+* [click to show more (another 49 features)](shorturl.at/ntBIY)
 
 ## Status
-Project is: _in progress_ - 0%
+Project is: _in progress_
 
 ## Inspiration
 Based on a [true story](https://www.youtube.com/watch?v=5hpi2bpGHp0)

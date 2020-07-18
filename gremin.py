@@ -57,13 +57,19 @@ grass_img = pygame.image.load('sprites/grass.png')
 dirt_img = pygame.image.load("sprites/dirt.png")
 tiles = get_tiles(map01, TILE_SIZE)  # list of all tiles(rects)
 
+yoda = "sounds/yoda.mp3"  # sample death sound
+
 player_image = pygame.image.load('sprites/player.png').convert()  # piwko ;)
 player_image.set_colorkey((255, 255, 255))
-gremin = characters.Player(pos_x=50, pos_y=0, width=16, height=40, health=100, image=player_image, tiles=tiles)
+gremin = characters.Player(pos_x=50, pos_y=0, width=16, height=40, health=100, image=player_image, tiles=tiles,
+                           death_sound=yoda)
 
 enemy_image = pygame.image.load('sprites/STROJ-PASTUSZEK-kostium-ludowy-GORAL-baca-122-128.png').convert()
 enemy_image.set_colorkey((255, 255, 255))
-enemy = characters.Enemy(pos_x=200, pos_y=0, width=40, height=40, health=100, image=enemy_image, tiles=tiles)
+enemy = characters.Enemy(pos_x=200, pos_y=0, width=40, height=40, health=100, image=enemy_image, tiles=tiles,
+                         death_sound=yoda)
+
+entities = [enemy, gremin]  # list of entities so i can check stuff about them| used a list just to keep it extendable
 
 while run:  # main loop
 
@@ -97,12 +103,24 @@ while run:  # main loop
 
     draw_map(map01, TILE_SIZE, display, DISPLAY_SIZE, camera_pos, dirt_img, grass_img)
 
-    enemy.move()
-    enemy.draw(display, camera_pos)
+    if entities:
+        """
+        Iterates through entities list which contains every Character that is alive
+        and checks if that Character performs any allowed action.
+        Adding this didn't brake anything YET and seems to be a good way to manage the increasing
+        number of implemented Characters(I'm looking forward for flaku and more górals)
+        """
+        for entity in entities:
+            if entity.check_if_dead():
+                entities.remove(entity)
+            else:
+                entity.move()
+                if entity is gremin:
+                    entity.attack()
+                    entity.draw(display)
+                else:
+                    entity.draw(display, camera_pos)
 
-    gremin.move()
-    gremin.attack()
-    gremin.draw(display)
     screen.blit(pygame.transform.scale(display, WINDOW_SIZE), (0, 0))
     pygame.display.update()
     clock.tick(60)  # sets the FPS to 60 :))
