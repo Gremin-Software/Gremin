@@ -29,7 +29,7 @@ To-do list:
 * beer power-ups
 
 <details>
-  <summary>Click to expand!</summary>
+  <summary>Click to see the whole TODO list!</summary>
   
  ![Features](https://i.ibb.co/6gCsnsR/features.png)
  
