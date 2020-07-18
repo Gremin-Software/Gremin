@@ -86,6 +86,7 @@ while run:  # main loop
                 gremin.jumping = True
             if event.key == pygame.K_SPACE:
                 gremin.is_attacking = True
+                gremin.draw_attack_hitbox(display)  # TODO: WYJEBAC
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT:
@@ -103,6 +104,7 @@ while run:  # main loop
     gremin.move()
     gremin.attack()
     gremin.draw(display)
+
     screen.blit(pygame.transform.scale(display, WINDOW_SIZE), (0, 0))
     pygame.display.update()
     clock.tick(60)  # sets the FPS to 60 :))

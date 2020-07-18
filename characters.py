@@ -91,7 +91,7 @@ class Player(Character):
         self.attack_damage = 20
         self.attack_range_x = 200
         self.attack_range_y = 20
-        self.attack_rect = pygame.Rect(self.pos_x, self.pos_y, self.attack_range_x, self.attack_range_y)
+        self.attack_rect = pygame.Rect(0, 0, self.attack_range_x, self.attack_range_y)
         self.is_attacking = False  # mozliwe ze bedzie mozna przeniesc do class Character
 
     def draw(self, display):  # draws the player to the screen, no animations for now, just a harnas
@@ -134,10 +134,16 @@ class Player(Character):
 
         self.health -= damage
 
-    # def draw_attack_hitbox(self, window):  # wyswietla hitboxa ataku  # PO ZAIMPLEMENTOWANIU KAMERY NIE DZIALA
-    #     """TESTING FUNCTION"""
-    #
-    #     pygame.draw.rect(window, (255, 0, 0), self.attack_rect)
+    def draw_attack_hitbox(self, display):  # wyswietla hitboxa ataku  # PO ZAIMPLEMENTOWANIU KAMERY NIE DZIALA
+        """TESTING FUNCTION"""
+
+        test_rect = pygame.Rect(0, 0, self.attack_range_x, self.attack_range_y)
+        if self.last_movement == 'right':
+            test_rect.x = display.get_width() // 2
+        else:
+            test_rect.x = display.get_width() // 2 - self.attack_range_x + self.width
+        test_rect.y = display.get_height() // 2 + (self.height - self.attack_range_y) // 2
+        pygame.draw.rect(display, (255, 0, 0), test_rect)
 
 
 class Enemy(Character):
@@ -150,4 +156,4 @@ class Enemy(Character):
 
     def damage(self, damage):
         self.health -= damage
-        print(self.health)  # TODO: WYJEBAC
+        print(self, "health: ", self.health)  # TODO: WYJEBAC
