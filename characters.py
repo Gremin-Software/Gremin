@@ -94,12 +94,12 @@ class Player(Character):
         self.attack_rect = pygame.Rect(self.pos_x, self.pos_y, self.attack_range_x, self.attack_range_y)
         self.is_attacking = False  # mozliwe ze bedzie mozna przeniesc do class Character
 
-    def draw(self, window):  # draws the player to the screen, no animations for now, just a harnas
+    def draw(self, display):  # draws the player to the screen, no animations for now, just a harnas
         # window.blit(self.image, (self.pos_x, self.pos_y))  # STARE
         if self.last_movement == 'right':
-            window.blit(self.image, (window.get_width() // 2, window.get_height() // 2))
+            display.blit(self.image, (display.get_width() // 2, display.get_height() // 2))
         else:
-            window.blit(pygame.transform.flip(self.image, True, False), (window.get_width() // 2, window.get_height() // 2))
+            display.blit(pygame.transform.flip(self.image, True, False), (display.get_width() // 2, display.get_height() // 2))
 
     def attack_collision_test(self, char_dict):
         """Returns a list of character instances the character attack hit box is colliding with"""
