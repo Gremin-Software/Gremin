@@ -27,7 +27,13 @@ Already included:
 To-do list:
 * Flaku
 * beer power-ups
-* [click to show more (another 49 features)](shorturl.at/ntBIY)
+
+<details>
+  <summary>Click to expand!</summary>
+  
+ ![Features](https://i.ibb.co/6gCsnsR/features.png)
+ 
+</details>
 
 ## Status
 Project is: _in progress_
