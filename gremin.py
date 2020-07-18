@@ -4,15 +4,53 @@
 import pygame
 import characters
 
+
+def load_map(path):
+    """Loads a map from .txt"""
+
+    f = open(path + '.txt', 'r')
+    data = f.read()
+    f.close()
+    data = data.splitlines()
+    game_map = []
+    for row in data:
+        game_map.append(row)
+    return game_map
+
+
+def get_tiles(game_map, tile_size):  # DO ZMIANY JESLI ZMIENIMY SPOSOB TWORZENIA MAPY
+    """Returns a list of rects"""
+
+    tiles = []
+    for y, layer in enumerate(game_map):
+        for x, tile in enumerate(layer):
+            if tile != '0':
+                tiles.append(pygame.Rect(x*tile_size, y*tile_size, tile_size, tile_size))
+    return tiles
+
+
+def draw_map(game_map, tile_size, window, image_1, image_2):  # FUNKCJA BEDZIE DO ZMIANY JESLI DODAMY WIECEJ
+    for y, layer in enumerate(game_map):                      # TEKSTUR/ZMIENIMY SPOSOB TWORZENIA MAPY
+        for x, tile in enumerate(layer):
+            if tile == '1':
+                window.blit(image_1, (x * tile_size, y * tile_size))
+            elif tile == '2':
+                window.blit(image_2, (x * tile_size, y * tile_size))
+
+
 pygame.init()
 pygame.display.set_caption('Gremin')
 WINDOW_SIZE = (480, 480)
-main_window = pygame.display.set_mode(WINDOW_SIZE)
+display = pygame.display.set_mode(WINDOW_SIZE)
+TILE_SIZE = 16
 clock = pygame.time.Clock()  # used for setting FPS
 run = True
 
-tiles = [pygame.Rect(0, 400, 400, 60), pygame.Rect(410, 300, 60, 100),
-         pygame.Rect(100, 200, 200, 10)]  # only for collision testing, do wyjebania :)
+
+map01 = load_map('maps/map01')
+grass_img = pygame.image.load('sprites/grass.png')
+dirt_img = pygame.image.load("sprites/dirt.png")
+tiles = get_tiles(map01, TILE_SIZE)  # list of all tiles(rects)
 
 player_image = pygame.image.load('sprites/player.png')  # piwko ;)
 gremin = characters.Player(pos_x=50, pos_y=0, width=40, height=40, health=100, image=player_image, tiles=tiles)
@@ -22,7 +60,7 @@ enemy = characters.Enemy(pos_x=200, pos_y=0, width=40, height=40, health=100, im
 
 while run:  # main loop
 
-    main_window.fill((0, 0, 0))  # fills the background with black every frame
+    display.fill((0, 0, 0))  # fills the background with black every frame
 
     # event handling
     for event in pygame.event.get():
@@ -48,16 +86,17 @@ while run:  # main loop
             if event.key == pygame.K_LEFT:
                 gremin.moving_left = False
 
-    for tile in tiles:
-        pygame.draw.rect(main_window, (0, 255, 0), tile)  # draws the tiles from tiles list every frame
+    # for tile in tiles:
+    #     pygame.draw.rect(main_window, (0, 255, 0), tile)  # draws the tiles from tiles list every frame
+    draw_map(map01, TILE_SIZE, display, dirt_img, grass_img)
 
     gremin.move()
     gremin.attack()
-    gremin.draw_attack_hitbox(main_window)  # TODO: WYJEBAC
-    gremin.draw(main_window)
+    gremin.draw_attack_hitbox(display)  # TODO: WYJEBAC
+    gremin.draw(display)
 
     enemy.move()
-    enemy.draw(main_window)
+    enemy.draw(display)
 
     pygame.display.update()
     clock.tick(60)  # sets the FPS to 60 :))
