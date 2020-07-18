@@ -85,7 +85,7 @@ class Character:
 
 
 class Player(Character):
-    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, movement_vel=5, jump_vel=20, terminal_vel=15):
+    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, movement_vel=3, jump_vel=15, terminal_vel=5):
         super().__init__(pos_x, pos_y, width, height, health, tiles, movement_vel, jump_vel, terminal_vel)
         self.image = image
         self.attack_damage = 20
@@ -95,7 +95,11 @@ class Player(Character):
         self.is_attacking = False  # mozliwe ze bedzie mozna przeniesc do class Character
 
     def draw(self, window):  # draws the player to the screen, no animations for now, just a harnas
-        window.blit(self.image, (self.pos_x, self.pos_y))
+        # window.blit(self.image, (self.pos_x, self.pos_y))  # STARE
+        if self.last_movement == 'right':
+            window.blit(self.image, (window.get_width() // 2, window.get_height() // 2))
+        else:
+            window.blit(pygame.transform.flip(self.image, True, False), (150, 100))
 
     def attack_collision_test(self, char_dict):
         """Returns a list of character instances the character attack hit box is colliding with"""
@@ -106,7 +110,7 @@ class Player(Character):
             self.attack_rect.x = self.pos_x
         else:
             self.attack_rect.x = self.pos_x - self.attack_range_x + self.width
-        self.attack_rect.y = self.pos_y + (self.width - self.attack_range_y) // 2
+        self.attack_rect.y = self.pos_y + (self.height - self.attack_range_y) // 2
 
         for char in char_dict:
             rect = char_dict[char]
@@ -130,10 +134,10 @@ class Player(Character):
 
         self.health -= damage
 
-    def draw_attack_hitbox(self, window):  # wyswietla hitboxa ataku
-        """TESTING FUNCTION"""
-
-        pygame.draw.rect(window, (255, 0, 0), self.attack_rect)
+    # def draw_attack_hitbox(self, window):  # wyswietla hitboxa ataku  # PO ZAIMPLEMENTOWANIU KAMERY NIE DZIALA
+    #     """TESTING FUNCTION"""
+    #
+    #     pygame.draw.rect(window, (255, 0, 0), self.attack_rect)
 
 
 class Enemy(Character):
@@ -141,8 +145,8 @@ class Enemy(Character):
         super().__init__(pos_x, pos_y, width, height, health, tiles, movement_vel, jump_vel, terminal_vel)
         self.image = image
 
-    def draw(self, window):  # draws the player to the screen, no animations for now, just a goral
-        window.blit(self.image, (self.pos_x, self.pos_y))
+    def draw(self, display, camera_pos):  # draws the player to the screen, no animations for now, just a goral
+        display.blit(self.image, (self.pos_x - camera_pos[0], self.pos_y - camera_pos[1]))
 
     def damage(self, damage):
         self.health -= damage
