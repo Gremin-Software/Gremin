@@ -114,6 +114,7 @@ while run:  # main loop
         for entity in entities:
             if entity.check_if_dead():
                 entities.remove(entity)
+                del entity
             else:
                 entity.move()
                 if entity is gremin:
