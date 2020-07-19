@@ -5,6 +5,55 @@ import pygame
 import characters
 
 
+def get_camera_pos(player: characters.Player, current_pos: list, display_size: tuple) -> list:
+    """Updates current camera position.
+    TODO: napisac to jak czlowiek / zmienic sposob dzialania / wyjebac w pizdu
+    TODO: szybkosc kamery zalezna od szybkosci gracza, ilosci pikseli na ekranie, a nie odgornie ustalonych liczb
+    TODO: jesli nie uda sie skrocic to chyba dobrze by to bylo wrzucic do osobnego modulu
+    """
+
+    center_x = player.pos_x - display_size[0] // 2
+    center_y = gremin.pos_y - display_size[1] // 2
+
+    if current_pos[0] < center_x - 500:
+        current_pos[0] += 100
+    elif current_pos[0] < center_x - 200:
+        current_pos[0] += 50
+    elif current_pos[0] < center_x - 20:
+        current_pos[0] += 3
+    elif current_pos[0] < center_x:
+        current_pos[0] += 1
+
+    if current_pos[0] > center_x + 500:
+        current_pos[0] -= 100
+    elif current_pos[0] > center_x + 200:
+        current_pos[0] -= 50
+    elif current_pos[0] > center_x + 20:
+        current_pos[0] -= 3
+    elif current_pos[0] > center_x:
+        current_pos[0] -= 1
+
+    if current_pos[1] < center_y - 500:
+        current_pos[1] += 100
+    elif current_pos[1] < center_y - 200:
+        current_pos[1] += 50
+    elif current_pos[1] < center_y - 100:
+        current_pos[1] += 5
+    elif current_pos[1] < center_y:
+        current_pos[1] += 2
+
+    if current_pos[1] > center_y + 500:
+        current_pos[1] -= 100
+    elif current_pos[1] > center_y + 200:
+        current_pos[1] -= 50
+    elif current_pos[1] > center_y + 120:
+        current_pos[1] -= 3
+    elif current_pos[1] > center_y:
+        current_pos[1] -= 1
+
+    return current_pos
+
+
 def load_map(path):
     """Loads a map from .txt"""
 
@@ -59,10 +108,12 @@ tiles = get_tiles(map01, TILE_SIZE)  # list of all tiles(rects)
 
 yoda = "sounds/yoda.mp3"  # sample death sound
 
-player_image = pygame.image.load('sprites/player.png').convert()  # piwko ;)
+player_image = pygame.image.load('sprites/player.png').convert()  # gremin
 player_image.set_colorkey((255, 255, 255))
 gremin = characters.Player(pos_x=50, pos_y=0, width=16, height=40, health=100, image=player_image, tiles=tiles,
                            death_sound=yoda)
+
+camera_pos = [0, 0]  # initial camera position
 
 enemy_image = pygame.image.load('sprites/STROJ-PASTUSZEK-kostium-ludowy-GORAL-baca-122-128.png').convert()
 enemy_image.set_colorkey((255, 255, 255))
@@ -93,16 +144,15 @@ while run:  # main loop
             if event.key == pygame.K_SPACE:
                 gremin.is_attacking = True
                 gremin.draw_attack_hitbox(display)  # TODO: WYJEBAC
+            if event.key == pygame.K_r:  # TODO: WYJEBAC, przenosi gremina na mape
+                gremin.pos_x = 50
+                gremin.pos_y = 0
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT:
                 gremin.moving_right = False
             if event.key == pygame.K_LEFT:
                 gremin.moving_left = False
-
-    camera_pos = [gremin.pos_x - DISPLAY_SIZE[0] // 2, gremin.pos_y - DISPLAY_SIZE[1] // 2]
-
-    draw_map(map01, TILE_SIZE, display, DISPLAY_SIZE, camera_pos, dirt_img, grass_img)
 
     if entities:
         """
@@ -118,9 +168,14 @@ while run:  # main loop
                 entity.move()
                 if entity is gremin:
                     entity.attack()
-                    entity.draw(display)
+                    entity.draw(display, camera_pos)
                 else:
                     entity.draw(display, camera_pos)
+
+    draw_map(map01, TILE_SIZE, display, DISPLAY_SIZE, camera_pos, dirt_img, grass_img)
+    # camera_pos = [gremin.pos_x - DISPLAY_SIZE[0] // 2, gremin.pos_y - DISPLAY_SIZE[1] // 2]  # STARY SPOSOB DZIALANIA
+    # zostawiam na wypadek zmiany
+    camera_pos = get_camera_pos(gremin, camera_pos, DISPLAY_SIZE)  # nowy sposob. w razie czego zakomentowac
 
     screen.blit(pygame.transform.scale(display, WINDOW_SIZE), (0, 0))
     pygame.display.update()
