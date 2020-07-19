@@ -154,7 +154,7 @@ while run:  # main loop
             if event.key == pygame.K_LEFT:
                 gremin.moving_left = False
 
-    if entities:
+    if gremin in entities:
         """
         Iterates through entities list which contains every Character that is alive
         and checks if that Character performs any allowed action.
@@ -164,7 +164,6 @@ while run:  # main loop
         for entity in entities:
             if entity.check_if_dead():
                 entities.remove(entity)
-                del entity
             else:
                 entity.move()
                 if entity is gremin:
@@ -172,7 +171,9 @@ while run:  # main loop
                     entity.draw(display, camera_pos)
                 else:
                     entity.draw(display, camera_pos)
-
+    else:
+        gremin.respawn()
+        entities.append(gremin)
     draw_map(map01, TILE_SIZE, display, DISPLAY_SIZE, camera_pos, dirt_img, grass_img)
     # camera_pos = [gremin.pos_x - DISPLAY_SIZE[0] // 2, gremin.pos_y - DISPLAY_SIZE[1] // 2]  # STARY SPOSOB DZIALANIA
     # zostawiam na wypadek zmiany

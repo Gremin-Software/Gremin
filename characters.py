@@ -91,7 +91,7 @@ class Character:
         https://stackoverflow.com/questions/47034604/how-do-i-delete-displayed-objects-in-python-with-pygame
         answer #2
         """
-        if self.health <= 0:
+        if self.health <= 0 or self.pos_y >= 1500:
             Character.char_rect_dict.pop(self)
             pygame.mixer.music.load(self.death_sound)
             pygame.mixer.music.play()
@@ -160,6 +160,13 @@ class Player(Character):
             test_rect.x = display.get_width() // 2 - self.attack_range_x + self.width
         test_rect.y = display.get_height() // 2 + (self.height - self.attack_range_y) // 2
         pygame.draw.rect(display, (255, 0, 0), test_rect)
+
+    def respawn(self):
+        """Gremin respawns on a paleta in the middle of the forest"""
+        Character.char_rect_dict[self] = self.player_rect
+        self.health = 100
+        self.pos_x = 50
+        self.pos_y = 0
 
 
 class Enemy(Character):
