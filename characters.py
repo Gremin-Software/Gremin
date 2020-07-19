@@ -87,12 +87,6 @@ class Character:
     def check_if_dead(self):
         """
         Checks if a Character has died
-
-        - "del Object" - seems to not do the trick (or i just do it incorrectly)
-
-        the method throws the rect away, kind of dunno how to erase it w/o inheriting
-        some stuff from the pygame.sprite.Sprite subclass
-
         please see reference:
         https://stackoverflow.com/questions/47034604/how-do-i-delete-displayed-objects-in-python-with-pygame
         answer #2
