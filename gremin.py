@@ -56,15 +56,13 @@ def get_camera_pos(player: characters.Player, current_pos: list, display_size: t
 
 def load_map(path):
     """Loads a map from .txt"""
-
-    f = open(path + '.txt', 'r')
-    data = f.read()
-    f.close()
-    data = data.splitlines()
-    game_map = []
-    for row in data:
-        game_map.append(row)
-    return game_map
+    with open(path + '.txt') as f:
+        data = f.read()
+        data = data.splitlines()
+        game_map = []
+        for row in data:
+            game_map.append(row)
+        return game_map
 
 
 def get_tiles(game_map, tile_size):  # DO ZMIANY JESLI ZMIENIMY SPOSOB TWORZENIA MAPY
@@ -120,7 +118,16 @@ enemy_image.set_colorkey((255, 255, 255))
 enemy = characters.Enemy(pos_x=200, pos_y=0, width=40, height=40, health=100, image=enemy_image, tiles=tiles,
                          death_sound=yoda)
 
-entities = [enemy, gremin]  # list of entities so i can check stuff about them| used a list just to keep it extendable
+paleta_image = pygame.image.load('sprites/paleta.png').convert()
+paleta_image.set_colorkey((255, 255, 255))
+
+paleta_1 = characters.Paleta(pos_x=300, pos_y=-40, width=40, height=12, health=100, image=paleta_image, tiles=tiles,
+                           death_sound=yoda)
+
+paleta_2 = characters.Paleta(pos_x=500, pos_y=0, width=40, height=12, health=100, image=paleta_image, tiles=tiles,
+                           death_sound=yoda)
+
+entities = [enemy, gremin, paleta_1, paleta_2]  # list of entities so i can check stuff about them| used a list just to keep it extendable
 
 while run:  # main loop
 
@@ -166,11 +173,13 @@ while run:  # main loop
                 entities.remove(entity)
             else:
                 entity.move()
+                entity.draw(display, camera_pos)
                 if entity is gremin:
                     entity.attack()
-                    entity.draw(display, camera_pos)
-                else:
-                    entity.draw(display, camera_pos)
+                elif entity.image == paleta_image:  # maybe it's better to check if entity is a Paleta object?
+                    """Checks if gremin changes his respawn point"""
+                    entity.set_respawn_place(gremin)
+
     else:
         gremin.respawn()
         entities.append(gremin)

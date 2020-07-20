@@ -9,7 +9,8 @@ class Character:
     gravity = 1
     char_rect_dict = {}
 
-    def __init__(self, pos_x, pos_y, width, height, health, tiles, death_sound, movement_vel=5, jump_vel=20, terminal_vel=15):
+    def __init__(self, pos_x, pos_y, width, height, health, tiles, death_sound, movement_vel=5, jump_vel=20,
+                 terminal_vel=15):
         self.health = health
         self.pos_x = pos_x  # player position
         self.pos_y = pos_y  #
@@ -109,6 +110,9 @@ class Player(Character):
         self.attack_range_y = 20
         self.attack_rect = pygame.Rect(0, 0, self.attack_range_x, self.attack_range_y)
         self.is_attacking = False  # mozliwe ze bedzie mozna przeniesc do class Character
+        self.respawn_x = pos_x
+        self.respawn_y = pos_y
+        self.respawn_hp = health
 
     def draw(self, display, camera_pos):  # draws the player to the screen, no animations for now, just a harnas
         # window.blit(self.image, (self.pos_x, self.pos_y))  # STARE
@@ -164,9 +168,9 @@ class Player(Character):
     def respawn(self):
         """Gremin respawns on a paleta in the middle of the forest"""
         Character.char_rect_dict[self] = self.player_rect
-        self.health = 100
-        self.pos_x = 50
-        self.pos_y = 0
+        self.health = self.respawn_hp
+        self.pos_x = self.respawn_x
+        self.pos_y = self.respawn_y
 
 
 class Enemy(Character):
@@ -180,3 +184,17 @@ class Enemy(Character):
     def damage(self, damage):
         self.health -= damage
         print(self, "health: ", self.health)  # TODO: WYJEBAC
+
+
+class Paleta(Enemy):
+    """Gremin respawn point. Inherits from class Enemy as for now - will be changed in the future"""
+    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=0, jump_vel=20,
+                 terminal_vel=15):
+        super().__init__(pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel, jump_vel,
+                         terminal_vel)
+
+    def set_respawn_place(self, gremin:Player):
+        """Sets paleta as Gremin's respawn point when Gremin touches it"""
+        if gremin.player_rect.colliderect(self.player_rect):
+            gremin.respawn_x =  int(self.pos_x - self.width / 2)
+            gremin.respawn_y = int(self.pos_y - 2 * self.height)
