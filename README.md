@@ -23,6 +23,7 @@ Already included:
 * Góral skurwol
 * basic game mechanics
 * map from .txt loader
+* pallets
 
 To-do list:
 * Flaku
