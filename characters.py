@@ -5,17 +5,23 @@
 import pygame
 
 
-class Character:
+class Entity:
+    def __init__(self, pos_x, pos_y, width, height):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.width = width
+        self.height = height
+        self.entity_rect = pygame.Rect(self.pos_x, self.pos_y, self.width, self.height)  # used in collision_test()
+
+
+class Character(Entity):
     gravity = 1
     char_rect_dict = {}
 
     def __init__(self, pos_x, pos_y, width, height, health, tiles, death_sound, movement_vel=5, jump_vel=20,
                  terminal_vel=15):
+        super().__init__(pos_x, pos_y, width, height)
         self.health = health
-        self.pos_x = pos_x  # player position
-        self.pos_y = pos_y  #
-        self.width = width
-        self.height = height
         self.moving_right = False
         self.moving_left = False
         self.last_movement = 'right'  # direction of last horizontal movement
@@ -25,19 +31,18 @@ class Character:
         self.jump_vel = jump_vel
         self.terminal_vel = terminal_vel
         self.fall_vel = 0
-        self.player_rect = pygame.Rect(self.pos_x, self.pos_y, self.width, self.height)  # used in collision_test()
         self.tiles = tiles  # tiles used in collision_test()
-        Character.char_rect_dict[self] = self.player_rect  # adds to the dict (class instance ref: self.player_rect)
+        Character.char_rect_dict[self] = self.entity_rect  # adds to the dict (class instance ref: self.player_rect)
         self.death_sound = death_sound
 
     def movement_collision_test(self, tiles) -> list:
         """Returns a list of rectangles(tiles) the character is colliding with"""
 
         collisions = []
-        self.player_rect.x = self.pos_x
-        self.player_rect.y = self.pos_y
+        self.entity_rect.x = self.pos_x
+        self.entity_rect.y = self.pos_y
         for tile in tiles:
-            if self.player_rect.colliderect(tile):  # checks whether the player collides with a rectangle(tile)
+            if self.entity_rect.colliderect(tile):  # checks whether the player collides with a rectangle(tile)
                 collisions.append(tile)
         return collisions
 
@@ -102,7 +107,8 @@ class Character:
 
 
 class Player(Character):
-    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=3, jump_vel=15, terminal_vel=5):
+    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=3, jump_vel=15,
+                 terminal_vel=5):
         super().__init__(pos_x, pos_y, width, height, health, tiles, death_sound, movement_vel, jump_vel, terminal_vel)
         self.image = image
         self.attack_damage = 20
@@ -119,7 +125,8 @@ class Player(Character):
         if self.last_movement == 'right':
             display.blit(self.image, (self.pos_x - camera_pos[0], self.pos_y - camera_pos[1]))
         else:
-            display.blit(pygame.transform.flip(self.image, True, False), (self.pos_x - camera_pos[0], self.pos_y - camera_pos[1]))
+            display.blit(pygame.transform.flip(self.image, True, False), (self.pos_x - camera_pos[0],
+                                                                          self.pos_y - camera_pos[1]))
 
     def attack_collision_test(self, char_dict):
         """Returns a list of character instances the character attack hit box is colliding with"""
@@ -167,14 +174,15 @@ class Player(Character):
 
     def respawn(self):
         """Gremin respawns on a paleta in the middle of the forest"""
-        Character.char_rect_dict[self] = self.player_rect
+        Character.char_rect_dict[self] = self.entity_rect
         self.health = self.respawn_hp
         self.pos_x = self.respawn_x
         self.pos_y = self.respawn_y
 
 
 class Enemy(Character):
-    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=5, jump_vel=20, terminal_vel=15):
+    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=5, jump_vel=20,
+                 terminal_vel=15):
         super().__init__(pos_x, pos_y, width, height, health, tiles, death_sound, movement_vel, jump_vel, terminal_vel)
         self.image = image
 
@@ -186,26 +194,46 @@ class Enemy(Character):
         print(self, "health: ", self.health)  # TODO: WYJEBAC
 
 
-class Paleta(Enemy):
+class Paleta(Entity):
     """Gremin respawn point. Inherits from class Enemy as for now - will be changed in the future"""
-    def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=0, jump_vel=20,
-                 terminal_vel=15):
-        super().__init__(pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel, jump_vel,
-                         terminal_vel)
 
-    def set_respawn_place(self, gremin:Player):
+    def __init__(self, pos_x, width, height, image, tiles, pos_y=0):  # pos_y is optional
+        super().__init__(pos_x, pos_y, width, height)
+        self.image = image
+        self.tiles = tiles
+        self.is_positioned = False
+
+    def set_respawn_place(self, gremin: Player):
         """Sets paleta as Gremin's respawn point when Gremin touches it"""
-        if gremin.player_rect.colliderect(self.player_rect):
-            gremin.respawn_x =  int(self.pos_x - self.width / 2)
+        if gremin.entity_rect.colliderect(self.entity_rect):
+            gremin.respawn_x = int(self.pos_x - self.width / 2)
             gremin.respawn_y = int(self.pos_y - 2 * self.height)
 
     def movement_collision_test(self, tiles) -> list:
         """Returns a list of rectangles(tiles) the character is colliding with"""
 
         collisions = []
-        self.player_rect.x = self.pos_x
-        self.player_rect.y = self.pos_y
+        self.entity_rect.x = self.pos_x
+        self.entity_rect.y = self.pos_y
         for tile in tiles:
-            if self.player_rect.colliderect(tile) and tile != self.player_rect:  # prevents from colliding with itself
+            if self.entity_rect.colliderect(tile) and tile != self.entity_rect:  # prevents from colliding with itself
                 collisions.append(tile)
         return collisions
+
+    def move(self):
+        """Moves the paleta down until it collides with a tile, then sets its position above it"""
+
+        collisions = self.movement_collision_test(self.tiles)
+
+        if not self.is_positioned:
+            if not collisions:
+                self.pos_y += 15
+
+            else:
+                self.pos_y = collisions[0].top - self.height
+                self.is_positioned = True
+                self.tiles.append(self.entity_rect)  # appends to tiles
+
+    def draw(self, display, camera_pos):  # draws the paleta to the screen
+        if self.is_positioned:
+            display.blit(self.image, (self.pos_x - camera_pos[0], self.pos_y - camera_pos[1]))

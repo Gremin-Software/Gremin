@@ -121,14 +121,13 @@ enemy = characters.Enemy(pos_x=200, pos_y=0, width=40, height=40, health=100, im
 paleta_image = pygame.image.load('sprites/paleta.png').convert()
 paleta_image.set_colorkey((255, 255, 255))
 
-paleta_1 = characters.Paleta(pos_x=300, pos_y=-40, width=40, height=12, health=100, image=paleta_image, tiles=tiles,
-                           death_sound=yoda)
-tiles.append(paleta_1.player_rect)
-paleta_2 = characters.Paleta(pos_x=500, pos_y=0, width=40, height=12, health=100, image=paleta_image, tiles=tiles,
-                           death_sound=yoda)
-tiles.append(paleta_2.player_rect)
+paleta_1 = characters.Paleta(pos_x=300, width=40, height=12, image=paleta_image, tiles=tiles)
+tiles.append(paleta_1.entity_rect)
+paleta_2 = characters.Paleta(pos_x=500, pos_y=0, width=40, height=12, image=paleta_image, tiles=tiles)
 
-entities = [enemy, gremin, paleta_1, paleta_2]  # list of entities so i can check stuff about them| used a list just to keep it extendable
+entities = [enemy, gremin, paleta_1, paleta_2]  # list of entities so i can check stuff about them| used a list just
+# to keep it extendable
+characters = [enemy, gremin]  # added because some functions are exclusive for characters
 
 while run:  # main loop
 
@@ -170,7 +169,7 @@ while run:  # main loop
         number of implemented Characters(I'm looking forward for flaku and more górals)
         """
         for entity in entities:
-            if entity.check_if_dead():
+            if entity in characters and entity.check_if_dead():
                 entities.remove(entity)
             else:
                 entity.move()
