@@ -97,7 +97,7 @@ class Character(Entity):
         https://stackoverflow.com/questions/47034604/how-do-i-delete-displayed-objects-in-python-with-pygame
         answer #2
         """
-        if self.health <= 0 or self.pos_y >= 1500:
+        if self.health <= 0 or self.pos_y >= 500:
             Character.char_rect_dict.pop(self)
             pygame.mixer.music.load(self.death_sound)
             pygame.mixer.music.play()
@@ -195,7 +195,7 @@ class Enemy(Character):
 
 
 class Paleta(Entity):
-    """Gremin respawn point. Inherits from class Enemy as for now - will be changed in the future"""
+    """Gremin respawn point."""
 
     def __init__(self, pos_x, width, height, image, tiles, pos_y=0):  # pos_y is optional
         super().__init__(pos_x, pos_y, width, height)
@@ -206,7 +206,7 @@ class Paleta(Entity):
     def set_respawn_place(self, gremin: Player):
         """Sets paleta as Gremin's respawn point when Gremin touches it"""
         if gremin.entity_rect.colliderect(self.entity_rect):
-            gremin.respawn_x = int(self.pos_x - self.width / 2)
+            gremin.respawn_x = int(self.pos_x + self.width / 2)
             gremin.respawn_y = int(self.pos_y - 2 * self.height)
 
     def movement_collision_test(self, tiles) -> list:
