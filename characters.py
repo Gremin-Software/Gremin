@@ -198,3 +198,14 @@ class Paleta(Enemy):
         if gremin.player_rect.colliderect(self.player_rect):
             gremin.respawn_x =  int(self.pos_x - self.width / 2)
             gremin.respawn_y = int(self.pos_y - 2 * self.height)
+
+    def movement_collision_test(self, tiles) -> list:
+        """Returns a list of rectangles(tiles) the character is colliding with"""
+
+        collisions = []
+        self.player_rect.x = self.pos_x
+        self.player_rect.y = self.pos_y
+        for tile in tiles:
+            if self.player_rect.colliderect(tile) and tile != self.player_rect:  # prevents from colliding with itself
+                collisions.append(tile)
+        return collisions

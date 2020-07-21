@@ -90,7 +90,7 @@ def draw_map(game_map, tile_size, display, display_size, camera_pos, image_1, im
 pygame.init()
 pygame.display.set_caption('Gremin')
 WINDOW_SIZE = (1440, 900)
-DISPLAY_SIZE = (500, 300)
+DISPLAY_SIZE = (700, 400)
 monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
 screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
 display = pygame.Surface(DISPLAY_SIZE)
@@ -123,9 +123,10 @@ paleta_image.set_colorkey((255, 255, 255))
 
 paleta_1 = characters.Paleta(pos_x=300, pos_y=-40, width=40, height=12, health=100, image=paleta_image, tiles=tiles,
                            death_sound=yoda)
-
+tiles.append(paleta_1.player_rect)
 paleta_2 = characters.Paleta(pos_x=500, pos_y=0, width=40, height=12, health=100, image=paleta_image, tiles=tiles,
                            death_sound=yoda)
+tiles.append(paleta_2.player_rect)
 
 entities = [enemy, gremin, paleta_1, paleta_2]  # list of entities so i can check stuff about them| used a list just to keep it extendable
 
