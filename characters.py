@@ -2,16 +2,24 @@
 # -*- coding: utf-8 -*-
 """Classes related to characters"""
 
+from abc import ABC, abstractmethod
 import pygame
 
 
-class Entity:
+class Entity(ABC):
+    entities_list = []  # list of all existing Entity objects
+
     def __init__(self, pos_x, pos_y, width, height):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.width = width
         self.height = height
         self.entity_rect = pygame.Rect(self.pos_x, self.pos_y, self.width, self.height)  # used in collision_test()
+        Entity.entities_list.append(self)
+
+    @abstractmethod
+    def update(self):
+        pass
 
 
 class Character(Entity):
@@ -24,24 +32,24 @@ class Character(Entity):
         self.health = health
         self.moving_right = False
         self.moving_left = False
-        self.last_movement = 'right'  # direction of last horizontal movement
+        self.last_movement_right = True  # direction of last horizontal movement
         self.movement_vel = movement_vel
         self.jumping = False
         self.can_jump = False
         self.jump_vel = jump_vel
         self.terminal_vel = terminal_vel
         self.fall_vel = 0
-        self.tiles = tiles  # tiles used in collision_test()
+        self.tiles = tiles  # tiles used in movement_collision_test()
         Character.char_rect_dict[self] = self.entity_rect  # adds to the dict (class instance ref: self.player_rect)
         self.death_sound = death_sound
 
-    def movement_collision_test(self, tiles) -> list:
+    def movement_collision_test(self) -> list:
         """Returns a list of rectangles(tiles) the character is colliding with"""
 
         collisions = []
         self.entity_rect.x = self.pos_x
         self.entity_rect.y = self.pos_y
-        for tile in tiles:
+        for tile in self.tiles:
             if self.entity_rect.colliderect(tile):  # checks whether the player collides with a rectangle(tile)
                 collisions.append(tile)
         return collisions
@@ -63,7 +71,7 @@ class Character(Entity):
             self.fall_vel = self.terminal_vel
 
         self.pos_x += movement[0]
-        collisions = self.movement_collision_test(self.tiles)
+        collisions = self.movement_collision_test()
         for tile in collisions:
             if movement[0] > 0:
                 self.pos_x = tile.left - self.width
@@ -72,7 +80,7 @@ class Character(Entity):
                 self.pos_x = tile.right
                 collision_types['left'] = True
         self.pos_y += movement[1]
-        collisions = self.movement_collision_test(self.tiles)
+        collisions = self.movement_collision_test()
         for tile in collisions:
             if movement[1] > 0:
                 self.pos_y = tile.top - self.height
@@ -105,6 +113,11 @@ class Character(Entity):
         else:
             return False
 
+    def update(self):
+        self.move()
+        if self.check_if_dead():
+            Entity.entities_list.remove(self)
+
 
 class Player(Character):
     def __init__(self, pos_x, pos_y, width, height, health, image, tiles, death_sound, movement_vel=3, jump_vel=15,
@@ -121,8 +134,7 @@ class Player(Character):
         self.respawn_hp = health
 
     def draw(self, display, camera_pos):  # draws the player to the screen, no animations for now, just a harnas
-        # window.blit(self.image, (self.pos_x, self.pos_y))  # STARE
-        if self.last_movement == 'right':
+        if self.last_movement_right:
             display.blit(self.image, (self.pos_x - camera_pos[0], self.pos_y - camera_pos[1]))
         else:
             display.blit(pygame.transform.flip(self.image, True, False), (self.pos_x - camera_pos[0],
@@ -133,7 +145,7 @@ class Player(Character):
 
         collisions = []
 
-        if self.last_movement == 'right':
+        if self.last_movement_right:
             self.attack_rect.x = self.pos_x
         else:
             self.attack_rect.x = self.pos_x - self.attack_range_x + self.width
@@ -165,7 +177,7 @@ class Player(Character):
         """TESTING FUNCTION"""
 
         test_rect = pygame.Rect(0, 0, self.attack_range_x, self.attack_range_y)
-        if self.last_movement == 'right':
+        if self.last_movement_right:
             test_rect.x = display.get_width() // 2
         else:
             test_rect.x = display.get_width() // 2 - self.attack_range_x + self.width
@@ -178,6 +190,14 @@ class Player(Character):
         self.health = self.respawn_hp
         self.pos_x = self.respawn_x
         self.pos_y = self.respawn_y
+
+    def update(self):
+        self.move()
+        self.attack()
+        if self.check_if_dead():
+            Entity.entities_list.remove(self)  # TODO: narazie zupelnie bez sensu zeby zachowac stara logike
+            self.respawn()
+            Entity.entities_list.append(self)
 
 
 class Enemy(Character):
@@ -197,17 +217,19 @@ class Enemy(Character):
 class Paleta(Entity):
     """Gremin respawn point."""
 
-    def __init__(self, pos_x, width, height, image, tiles, pos_y=0):  # pos_y is optional
+    def __init__(self, pos_x, width, height, image, tiles, player: Player, pos_y=0):  # pos_y is optional
         super().__init__(pos_x, pos_y, width, height)
         self.image = image
         self.tiles = tiles
+        self.player = player
         self.is_positioned = False
 
-    def set_respawn_place(self, gremin: Player):
+    def set_respawn_place(self):
         """Sets paleta as Gremin's respawn point when Gremin touches it"""
-        if gremin.entity_rect.colliderect(self.entity_rect):
-            gremin.respawn_x = int(self.pos_x + self.width / 2)
-            gremin.respawn_y = int(self.pos_y - 2 * self.height)
+
+        if self.player.entity_rect.colliderect(self.entity_rect):
+            self.player.respawn_x = self.pos_x + self.width // 2
+            self.player.respawn_y = self.pos_y - 2 * self.height
 
     def movement_collision_test(self, tiles) -> list:
         """Returns a list of rectangles(tiles) the character is colliding with"""
@@ -237,3 +259,7 @@ class Paleta(Entity):
     def draw(self, display, camera_pos):  # draws the paleta to the screen
         if self.is_positioned:
             display.blit(self.image, (self.pos_x - camera_pos[0], self.pos_y - camera_pos[1]))
+
+    def update(self):
+        self.move()
+        self.set_respawn_place()
