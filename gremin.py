@@ -16,12 +16,9 @@ display = pygame.Surface(DISPLAY_SIZE)
 TILE_SIZE = 16
 clock = pygame.time.Clock()  # used for setting FPS
 run = True
-camera = camera.Camera()
+camera = camera.Camera(*DISPLAY_SIZE)
 
-map01 = map.load('maps/map01')
-grass_img = pygame.image.load('sprites/grass.png')
-dirt_img = pygame.image.load("sprites/dirt.png")
-tiles = map.get_tiles(map01, TILE_SIZE)  # list of all tiles(rects)
+main_map = map.Map(map_file='maps/map01', tile_size=TILE_SIZE, camera=camera)
 
 # SOUNDS
 yoda = "sounds/yoda.mp3"  # sample death sound
@@ -39,12 +36,12 @@ paleta_image = pygame.image.load('sprites/paleta.png').convert()
 paleta_image.set_colorkey((255, 255, 255))
 
 # ENTITIES
-gremin = characters.Player(pos_x=50, pos_y=0, width=16, height=40, health=100, image=player_image, tiles=tiles,
+gremin = characters.Player(pos_x=50, pos_y=0, width=16, height=40, health=100, image=player_image, tiles=main_map.tiles,
                            death_sound=yoda)
-enemy = characters.Enemy(pos_x=200, pos_y=0, width=40, height=40, health=100, image=enemy_image, tiles=tiles,
+enemy = characters.Enemy(pos_x=200, pos_y=0, width=40, height=40, health=100, image=enemy_image, tiles=main_map.tiles,
                          death_sound=yoda)
-paleta_1 = characters.Paleta(pos_x=300, width=40, height=12, image=paleta_image, tiles=tiles, player=gremin)
-paleta_2 = characters.Paleta(pos_x=500, pos_y=0, width=40, height=12, image=paleta_image, tiles=tiles, player=gremin)
+paleta_1 = characters.Paleta(pos_x=300, width=40, height=12, image=paleta_image, tiles=main_map.tiles, player=gremin)
+paleta_2 = characters.Paleta(pos_x=500, pos_y=0, width=40, height=12, image=paleta_image, tiles=main_map.tiles, player=gremin)
 
 entities = characters.Entity.entities_list  # list of entities
 
@@ -56,7 +53,7 @@ while run:  # main loop
     run = event.handle_events(gremin, display, run)
 
     # camera position
-    camera.update_camera_pos(gremin, DISPLAY_SIZE)
+    camera.update_camera_pos(gremin)
     camera_pos = camera.current_pos  # nowy sposob. w razie czego zakomentowac
 
     # updating and drawing entities
@@ -64,7 +61,7 @@ while run:  # main loop
         entity.update()
         entity.draw(display, camera_pos)
 
-    map.draw(map01, TILE_SIZE, display, camera_pos, dirt_img, grass_img)
+    main_map.draw(display)
     screen.blit(pygame.transform.scale(display, WINDOW_SIZE), (0, 0))
     pygame.display.update()
     clock.tick(60)  # sets the FPS to 60 :))

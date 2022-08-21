@@ -5,14 +5,19 @@ import characters
 
 
 class Camera:
-    def __init__(self):
-        self.pos_x: int = 0
-        self.pos_y: int = 0
-        self.current_pos = [self.pos_x, self.pos_y]
+    def __init__(self, length: int, width: int):
+        self.x: int = 0
+        self.y: int = 0
+        self.length = length
+        self.width = width
 
-    def update_camera_pos(self, player: characters.Player, display_size: tuple) -> None:
-        x_dist = player.pos_x - self.current_pos[0] - display_size[0] // 2
-        y_dist = player.pos_y - self.current_pos[1] - display_size[1] // 2
+    @property
+    def current_pos(self):
+        return self.x, self.y
 
-        self.current_pos[0] += x_dist // 15
-        self.current_pos[1] += y_dist // 15
+    def update_camera_pos(self, player: characters.Player) -> None:
+        x_dist = player.pos_x - self.x - self.length // 2
+        y_dist = player.pos_y - self.y - self.width // 2
+
+        self.x += x_dist // 15
+        self.y += y_dist // 15

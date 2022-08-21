@@ -98,7 +98,7 @@ class Character(Entity):
             self.can_jump = False
         self.jumping = False
 
-    def check_if_dead(self):
+    def is_dead(self):
         """
         Checks if a Character has died
         please see reference:
@@ -115,7 +115,7 @@ class Character(Entity):
 
     def update(self):
         self.move()
-        if self.check_if_dead():
+        if self.is_dead():
             Entity.entities_list.remove(self)
 
 
@@ -194,7 +194,7 @@ class Player(Character):
     def update(self):
         self.move()
         self.attack()
-        if self.check_if_dead():
+        if self.is_dead():
             Entity.entities_list.remove(self)  # TODO: narazie zupelnie bez sensu zeby zachowac stara logike
             self.respawn()
             Entity.entities_list.append(self)

@@ -1,17 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import pygame
+import camera
+from typing import Dict
 
 
 def load(path):
     """Loads a map from .txt"""
-    with open(path + '.txt') as f:
-        data = f.read()
-        data = data.splitlines()
-        game_map = []
-        for row in data:
-            game_map.append(row)
-        return game_map
+    with open(path + ".txt") as f:
+        return [row for row in f.read().splitlines()]
 
 
 def get_tiles(game_map, tile_size):  # DO ZMIANY JESLI ZMIENIMY SPOSOB TWORZENIA MAPY
@@ -20,17 +17,40 @@ def get_tiles(game_map, tile_size):  # DO ZMIANY JESLI ZMIENIMY SPOSOB TWORZENIA
     tiles = []
     for y, layer in enumerate(game_map):
         for x, tile in enumerate(layer):
-            if tile != '0':
-                tiles.append(pygame.Rect(x * tile_size, y * tile_size, tile_size, tile_size))
+            if tile != "0":
+                tiles.append(
+                    pygame.Rect(x * tile_size, y * tile_size, tile_size, tile_size)
+                )
     return tiles
 
 
-def draw(game_map, tile_size, display, camera_pos, image_1, image_2):
-    """Draws the map to the screen"""
+def is_tile_visible(camera, x, y):
+    return 0 <= x - camera.x <= camera.length and 0 <= y - camera.y <= camera.width
 
-    for y, layer in enumerate(game_map):  # FUNKCJA BEDZIE DO ZMIANY JESLI DODAMY WIECEJ
-        for x, tile in enumerate(layer):  # TEKSTUR/ZMIENIMY SPOSOB TWORZENIA MAPY
-            if tile == '1':
-                display.blit(image_1, (x * tile_size - camera_pos[0], y * tile_size - camera_pos[1]))
-            elif tile == '2':
-                display.blit(image_2, (x * tile_size - camera_pos[0], y * tile_size - camera_pos[1]))
+
+tile_mapping: Dict[str, pygame.Surface] = {
+    "1": pygame.image.load("sprites/dirt.png"),
+    "2": pygame.image.load("sprites/grass.png"),
+}
+
+
+class Map:
+    def __init__(self, map_file: str, tile_size: int, camera: camera.Camera):
+        self.game_map = load(map_file)
+        self.tile_size = tile_size
+        self.tiles = get_tiles(self.game_map, tile_size)
+        self.camera = camera
+
+    def draw(self, display):
+        """Draws the map to the screen"""
+        for y, layer in enumerate(self.game_map):
+            for x, tile in enumerate(layer):
+                if tile == "0" or not is_tile_visible(self.camera, x*self.tile_size, y*self.tile_size):
+                    continue
+                display.blit(
+                    tile_mapping[tile],
+                    (
+                        x * self.tile_size - self.camera.x,
+                        y * self.tile_size - self.camera.y,
+                    ),
+                )
