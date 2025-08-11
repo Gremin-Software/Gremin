@@ -3,6 +3,7 @@
 """Classes related to characters"""
 
 from abc import ABC, abstractmethod
+
 import pygame
 
 

@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import pygame
-import characters
+
 import camera
+import characters
 import event
 import map
 
