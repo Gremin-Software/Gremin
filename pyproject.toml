@@ -1,0 +1,14 @@
+[project]
+name = "gremin"
+version = "0.1.0"
+description = "Gremin, the game"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pygame>=2.6.1",
+]
+
+[dependency-groups]
+dev = [
+    "isort>=6.0.1",
+]

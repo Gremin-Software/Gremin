@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import pygame
-import camera
 from typing import Dict
+
+import pygame
+
+import camera
 
 
 def load(path):
